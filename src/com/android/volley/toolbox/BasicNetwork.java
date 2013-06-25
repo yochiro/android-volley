@@ -114,7 +114,7 @@ public class BasicNetwork implements Network {
                 long requestLifetime = SystemClock.elapsedRealtime() - requestStart;
                 logSlowRequests(requestLifetime, request, responseContents, statusLine);
 
-                if (statusCode < 200 || statusCode > 299) {
+                if (statusCode < HttpStatus.SC_OK || statusCode >= HttpStatus.SC_BAD_REQUEST) {
                     throw new IOException();
                 }
                 return new NetworkResponse(statusCode, responseContents, responseHeaders, false);
@@ -140,13 +140,13 @@ public class BasicNetwork implements Network {
                             statusCode == HttpStatus.SC_FORBIDDEN) {
                         attemptRetryOnException("auth",
                                 request, new AuthFailureError(networkResponse));
-                    } else {
-                        // TODO: Only throw ServerError for 5xx status codes.
+                    } else if (statusCode >= HttpStatus.SC_INTERNAL_SERVER_ERROR) {
                         throw new ServerError(networkResponse);
                     }
                 } else {
                     throw new NetworkError(networkResponse);
                 }
+                return networkResponse;
             }
         }
     }

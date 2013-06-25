@@ -97,6 +97,17 @@ public class NetworkImageView extends ImageView {
     }
 
     /**
+     * Cancels current request if any
+     */
+    public void cancel() {
+        if (mImageContainer != null) {
+            mImageContainer.cancelRequest();
+            mImageContainer = null;
+        }
+    }
+
+
+    /**
      * Loads the image for the view if it isn't already loaded.
      * @param isInLayoutPass True if this was invoked from a layout pass, false otherwise.
      */
@@ -120,7 +131,9 @@ public class NetworkImageView extends ImageView {
                 mImageContainer.cancelRequest();
                 mImageContainer = null;
             }
-            setImageBitmap(null);
+            if (!isInLayoutPass) {
+                setImageBitmap(null);
+            }
             return;
         }
 
@@ -145,6 +158,7 @@ public class NetworkImageView extends ImageView {
                         if (mErrorImageId != 0) {
                             setImageResource(mErrorImageId);
                         }
+                        NetworkImageView.this.onErrorResponse(error);
                     }
 
                     @Override
@@ -168,8 +182,9 @@ public class NetworkImageView extends ImageView {
                         } else if (mDefaultImageId != 0) {
                             setImageResource(mDefaultImageId);
                         }
+                        NetworkImageView.this.onResponse(response, isImmediate);
                     }
-                });
+                }, getDesiredWidth(), getDesiredHeight());
 
         // update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;
@@ -199,4 +214,13 @@ public class NetworkImageView extends ImageView {
         super.drawableStateChanged();
         invalidate();
     }
+
+    protected void onErrorResponse(VolleyError error) {
+    }
+
+    protected void onResponse(final ImageContainer response, boolean isImmediate) {
+    }
+
+    protected int getDesiredWidth() { return 0; }
+    protected int getDesiredHeight() { return 0; }
 }

@@ -169,6 +169,11 @@ public class ImageRequest extends Request<Bitmap> {
                 bitmap = Bitmap.createScaledBitmap(tempBitmap,
                         desiredWidth, desiredHeight, true);
                 tempBitmap.recycle();
+            } else if (tempBitmap != null && (tempBitmap.getWidth() < desiredWidth ||
+                      tempBitmap.getHeight() < desiredHeight)) {
+                  bitmap = Bitmap.createScaledBitmap(tempBitmap,
+                          desiredWidth, desiredHeight, true);
+                  tempBitmap.recycle();
             } else {
                 bitmap = tempBitmap;
             }
