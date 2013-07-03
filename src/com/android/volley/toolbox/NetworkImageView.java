@@ -16,6 +16,7 @@
 package com.android.volley.toolbox;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.view.ViewGroup.LayoutParams;
@@ -33,6 +34,9 @@ public class NetworkImageView extends ImageView {
     /** The URL of the network image to load */
     private String mUrl;
 
+    /** The config used to load the bitmap */
+    private Bitmap.Config mConfig;
+    
     /**
      * Resource ID of the image to be used as a placeholder until the network image is loaded.
      */
@@ -74,7 +78,25 @@ public class NetworkImageView extends ImageView {
      * @param imageLoader ImageLoader that will be used to make the request.
      */
     public void setImageUrl(String url, ImageLoader imageLoader) {
+        setImageUrl(url, null, imageLoader);
+    }
+    
+    /**
+     * Sets URL of the image that should be loaded into this view. Note that calling this will
+     * immediately either set the cached image (if available) or the default image specified by
+     * {@link NetworkImageView#setDefaultImageResId(int)} on the view.
+     *
+     * NOTE: If applicable, {@link NetworkImageView#setDefaultImageResId(int)} and
+     * {@link NetworkImageView#setErrorImageResId(int)} should be called prior to calling
+     * this function.
+     *
+     * @param url The URL that should be loaded into this ImageView.
+     * @param loadConfig the Bitmap.Config to use to load the image
+     * @param imageLoader ImageLoader that will be used to make the request.
+     */
+    public void setImageUrl(String url, Bitmap.Config loadConfig, ImageLoader imageLoader) {
         mUrl = url;
+        mConfig = loadConfig;
         mImageLoader = imageLoader;
         // The URL has potentially changed. See if we need to load it.
         loadImageIfNecessary(false);
@@ -184,7 +206,7 @@ public class NetworkImageView extends ImageView {
                         }
                         NetworkImageView.this.onResponse(response, isImmediate);
                     }
-                }, getDesiredWidth(), getDesiredHeight());
+                }, getDesiredWidth(), getDesiredHeight(), mConfig);
 
         // update the ImageContainer to be the new bitmap container.
         mImageContainer = newContainer;
@@ -220,7 +242,7 @@ public class NetworkImageView extends ImageView {
 
     protected void onResponse(final ImageContainer response, boolean isImmediate) {
     }
-
+    
     protected int getDesiredWidth() { return 0; }
     protected int getDesiredHeight() { return 0; }
 }
