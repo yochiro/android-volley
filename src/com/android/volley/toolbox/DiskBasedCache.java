@@ -116,6 +116,10 @@ public class DiskBasedCache implements Cache {
             CacheHeader.readHeader(cis); // eat header
             byte[] data = streamToBytes(cis, (int) (file.length() - cis.bytesRead));
             return entry.toCacheEntry(data);
+        } catch (OutOfMemoryError oome) {
+            VolleyLog.d("%s: %s", file.getAbsolutePath(), oome.toString());
+            remove(key);
+            return null;
         } catch (IOException e) {
             VolleyLog.d("%s: %s", file.getAbsolutePath(), e.toString());
             remove(key);
